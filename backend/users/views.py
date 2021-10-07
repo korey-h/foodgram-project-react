@@ -15,17 +15,20 @@ class CustomUserViewSet(UserViewSet):
     serializer_class = CustomUserSerializer
     pagination_class = pagination.PageNumberPagination
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-    lookup_field = 'pk'
+    lookup_field = 'id'
 
     def get_queryset(self):
         return User.objects.all()
 
 
 class SubscribeViewSet(ModelViewSet):
-    http_method_names = ['get', 'delete', ] 
+    http_method_names = ['get', 'delete', ]
     serializer_class = SubscribeSerializer
     permission_classes = [permissions.IsAuthenticated, ]
+    pagination_class = pagination.PageNumberPagination
     queryset = Subscribe.objects.all()
+    lookup_url_kwarg = 'id'
+    lookup_field = 'subscription'
 
     def create(self, request, *args, **kwargs):
         subscription = get_object_or_404(User, id=self.kwargs['id'])
@@ -35,7 +38,10 @@ class SubscribeViewSet(ModelViewSet):
         request.data.update(data)
         return super().create(request, *args, **kwargs)
 
-    @action(["get", ], detail=False)
+    @action(["get", "delete"], detail=True)
     def subscribe(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+        if request.method == "GET":
+            return self.create(request, *args, **kwargs)
+        elif request.method == "DELETE":
+            return self.destroy(request, *args, **kwargs)
 
