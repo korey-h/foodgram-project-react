@@ -16,18 +16,27 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import SimpleRouter
-from users import views
 
+from recipes import views as recipes_views
+from users import views as user_views
 
 router_users = SimpleRouter()
-router_users.register("users", views.CustomUserViewSet, basename='user_manage')
+router_recipes = SimpleRouter()
 router_users.register("users",
-                      views.SubscribeViewSet, basename='subscribe')
+                      user_views.CustomUserViewSet)
+router_users.register("users",
+                      user_views.SubscribeViewSet)
+
+router_recipes.register("ingredients",
+                        recipes_views.IngredientsViewSet)
+router_recipes.register("recipes",
+                        recipes_views.RecipesViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/subscriptions/',
-         views.SubscribeViewSet.as_view({'get': 'list'})),
+         user_views.SubscribeViewSet.as_view({'get': 'list'})),
     path('api/', include(router_users.urls)),
+    path('api/', include(router_recipes.urls)),
     path('api/auth/', include('djoser.urls.authtoken')),
 ]
