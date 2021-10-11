@@ -44,4 +44,3 @@ class SubscribeViewSet(ModelViewSet):
             return self.create(request, *args, **kwargs)
         elif request.method == "DELETE":
             return self.destroy(request, *args, **kwargs)
-

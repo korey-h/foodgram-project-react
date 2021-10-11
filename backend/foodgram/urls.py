@@ -15,9 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from rest_framework.routers import SimpleRouter
-
 from recipes import views as recipes_views
+from rest_framework.routers import SimpleRouter
 from users import views as user_views
 
 router_users = SimpleRouter()

@@ -1,7 +1,10 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
-from .models import Ingredients, IngredientAmount, Recipes, Tags
+from .models import Favorites, IngredientAmount, Ingredients, Recipes, Tags
+
+User = get_user_model()
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
@@ -31,6 +34,27 @@ class TagsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tags
         fields = '__all__'
+
+
+class FavoritesSerializer(serializers.ModelSerializer):
+    id = SlugRelatedField(queryset=Recipes.objects.all(),
+                          slug_field='id', source='recipe')
+
+    name = serializers.CharField(source='recipe.name', read_only=True)
+    image = serializers.CharField(source='recipe.image', read_only=True)
+    cooking_time = serializers.IntegerField(
+        source='recipe.cooking_time',
+        read_only=True)
+
+    class Meta:
+        model = Favorites
+        fields = ['id', 'name', 'image', 'cooking_time']
+
+    def create(self, validated_data):
+        obj = Favorites.objects.get_or_create(
+            user=self.context['request'].user,
+            recipe=validated_data['recipe'])
+        return obj[0]
 
 
 class RecipesSerializer(serializers.ModelSerializer):
