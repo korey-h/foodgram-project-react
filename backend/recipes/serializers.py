@@ -43,10 +43,6 @@ class TagsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UploadedBase64ImageSerializer(serializers.Serializer):
-    file = Base64ImageField(required=False)
-
-
 class FavoritesSerializer(serializers.ModelSerializer):
     id = SlugRelatedField(queryset=Recipes.objects.all(),
                           slug_field='id', source='recipe')

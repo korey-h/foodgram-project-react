@@ -30,6 +30,8 @@ router_recipes.register("ingredients",
                         recipes_views.IngredientsViewSet)
 router_recipes.register("recipes",
                         recipes_views.RecipesViewSet)
+router_recipes.register("tags",
+                        recipes_views.TagsViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -9,10 +9,14 @@ from rest_framework.viewsets import ModelViewSet
 
 from .filters import RecipesFilter
 from .models import Favorites, Ingredients, IngredientAmount
-from .models import Recipes, ShoppingCart
+from .models import Recipes, ShoppingCart, Tags
 from .permissions import IsOwnerOrReadOnly
-from .serializers import FavoritesSerializer, IngredientsSerializer
-from .serializers import RecipesSerializer, ShoppingCartSerializer
+from .serializers import (
+    FavoritesSerializer,
+    IngredientsSerializer,
+    RecipesSerializer,
+    ShoppingCartSerializer,
+    TagsSerializer)
 
 
 class IngredientsViewSet(ModelViewSet):
@@ -77,3 +81,10 @@ class RecipesViewSet(ModelViewSet):
         writer.writerow(['Ингридиенты', 'Количество', 'ед. изм.'])
         writer.writerows(cvv_data)
         return response
+
+
+class TagsViewSet(ModelViewSet):
+    queryset = Tags.objects.all()
+    serializer_class = TagsSerializer
+    http_method_names = ['get', ]
+    permission_classes = []
