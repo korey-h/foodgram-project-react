@@ -11,21 +11,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 """
 import os
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
-sentry_sdk.init(
-    dsn="https://a72af3605ef646ec803754ad8206f6ae@o1030164.ingest.sentry.io/5997397", # noqa
-    integrations=[DjangoIntegration()],
-
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    # We recommend adjusting this value in production,
-    traces_sample_rate=1.0,
-
-    # If you wish to associate users to errors (assuming you are using
-    # django.contrib.auth) you may enable sending PII data.
-    send_default_pii=True
-)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -128,7 +113,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
-    'PAGE_SIZE': 2
+    'PAGE_SIZE': 10
 }
 
 
@@ -150,3 +135,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

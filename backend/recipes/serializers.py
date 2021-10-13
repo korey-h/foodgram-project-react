@@ -1,8 +1,15 @@
 from django.contrib.auth import get_user_model
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
-from .models import Favorites, IngredientAmount, Ingredients, Recipes, Tags
+from .models import (
+    Favorites,
+    IngredientAmount,
+    Ingredients,
+    Recipes,
+    Tags,
+    ShoppingCart)
 
 User = get_user_model()
 
@@ -36,6 +43,10 @@ class TagsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UploadedBase64ImageSerializer(serializers.Serializer):
+    file = Base64ImageField(required=False)
+
+
 class FavoritesSerializer(serializers.ModelSerializer):
     id = SlugRelatedField(queryset=Recipes.objects.all(),
                           slug_field='id', source='recipe')
@@ -51,10 +62,16 @@ class FavoritesSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'image', 'cooking_time']
 
     def create(self, validated_data):
-        obj = Favorites.objects.get_or_create(
+        obj = self.Meta.model.objects.get_or_create(
             user=self.context['request'].user,
             recipe=validated_data['recipe'])
         return obj[0]
+
+
+class ShoppingCartSerializer(FavoritesSerializer):
+    class Meta:
+        model = ShoppingCart
+        fields = ['id', 'name', 'image', 'cooking_time']
 
 
 class RecipesSerializer(serializers.ModelSerializer):
@@ -62,18 +79,35 @@ class RecipesSerializer(serializers.ModelSerializer):
     tags = SlugRelatedField(queryset=Tags.objects.all(),
                             slug_field='id', many=True)
 
+    image = Base64ImageField()
+
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
+
     class Meta:
         model = Recipes
         fields = ['id', 'name', 'cooking_time', 'ingredients',
-                  'tags', 'image', 'text']
-        extra_kwargs = {'image': {'required': False}, }
+                  'tags', 'image', 'text', 'is_favorited',
+                  'is_in_shopping_cart', ]
+
+    def get_is_favorited(self, obj):
+        current_user = self.context['request'].user
+        return current_user.favorites.filter(recipe=obj).exists()
+
+    def get_is_in_shopping_cart(self, obj):
+        current_user = self.context['request'].user
+        return current_user.shopping_cart.filter(recipe=obj).exists()
 
     def to_representation(self, instance):
         self.fields['tags'] = TagsSerializer(many=True, )
         return super().to_representation(instance)
 
+    def to_internal_value(self, data):
+        user = self.context['request'].user
+        data.update({'user': user})
+        return super().to_internal_value(data)
+
     def update(self, instance, validated_data):
-        # print('>>>Recipes update validated_data>>>', validated_data)
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
         for key, value in validated_data.items():
@@ -93,13 +127,13 @@ class RecipesSerializer(serializers.ModelSerializer):
         return instance
 
     def create(self, validated_data):
-        # print('>>>Recipes update validated_data>>>', validated_data)
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
         recipe = Recipes.objects.create(**validated_data)
         for ingredient in ingredients_data:
             IngredientAmount.objects.create(recipe=recipe, **ingredient)
         recipe.tags.set(tags_data)
+        recipe.user = self.context['request'].user
         recipe.save()
 
         return recipe

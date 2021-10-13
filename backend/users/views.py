@@ -38,7 +38,8 @@ class SubscribeViewSet(ModelViewSet):
         request.data.update(data)
         return super().create(request, *args, **kwargs)
 
-    @action(["get", "delete"], detail=True)
+    @action(["get", "delete"], detail=True,
+            permission_classes=[permissions.IsAuthenticated])
     def subscribe(self, request, *args, **kwargs):
         if request.method == "GET":
             return self.create(request, *args, **kwargs)

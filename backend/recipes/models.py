@@ -16,12 +16,16 @@ class Ingredients(models.Model):
 
 
 class Recipes(models.Model):
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
+                             related_name='user_recipes',
+                             )
 
     tags = models.ManyToManyField(
         'Tags',
         related_name='tags')
 
-    image = models.ImageField(upload_to='media/')
+    image = models.ImageField(upload_to='recipes/images/', )
 
     name = models.TextField(
         max_length=200, unique=True,
@@ -72,6 +76,18 @@ class Favorites(models.Model):
     recipe = models.ForeignKey(Recipes,
                                on_delete=models.CASCADE,
                                related_name='users')
+
+    class Meta:
+        unique_together = ['user', 'recipe']
+
+
+class ShoppingCart(models.Model):
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
+                             related_name='shopping_cart')
+    recipe = models.ForeignKey(Recipes,
+                               on_delete=models.CASCADE,
+                               related_name='users_cart')
 
     class Meta:
         unique_together = ['user', 'recipe']
