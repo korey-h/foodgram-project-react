@@ -14,6 +14,9 @@ class Ingredients(models.Model):
     measurement_unit = models.TextField(
         max_length=200, verbose_name='единица измерения')
 
+    def __str__(self):
+        return self.name
+
 
 class Recipes(models.Model):
     user = models.ForeignKey(User,
@@ -38,6 +41,9 @@ class Recipes(models.Model):
         validators=[MinValueValidator(
             1, message='Время должно быть больше 1 минуты')
         ])
+
+    def __str__(self):
+        return self.name
 
 
 class IngredientAmount(models.Model):
@@ -67,6 +73,9 @@ class Tags(models.Model):
     color = models.CharField(max_length=7, null=True, blank=True)
 
     slug = models.SlugField(max_length=200, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Favorites(models.Model):
