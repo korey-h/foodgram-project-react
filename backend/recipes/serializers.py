@@ -75,7 +75,7 @@ class RecipesSerializer(serializers.ModelSerializer):
     tags = SlugRelatedField(queryset=Tags.objects.all(),
                             slug_field='id', many=True)
 
-    image = Base64ImageField()
+    image = serializers.ImageField(use_url=True)
 
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -88,10 +88,14 @@ class RecipesSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         current_user = self.context['request'].user
+        if current_user.is_anonymous:
+            return False
         return current_user.favorites.filter(recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
         current_user = self.context['request'].user
+        if current_user.is_anonymous:
+            return False
         return current_user.shopping_cart.filter(recipe=obj).exists()
 
     def to_representation(self, instance):
@@ -101,6 +105,7 @@ class RecipesSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         user = self.context['request'].user
         data.update({'user': user})
+        self.fields['image'] = Base64ImageField()
         return super().to_internal_value(data)
 
     def update(self, instance, validated_data):
