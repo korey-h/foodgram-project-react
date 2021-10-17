@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
+from users.serializers import CustomUserSerializer
 
 from .models import (
     Favorites,
@@ -71,6 +72,7 @@ class ShoppingCartSerializer(FavoritesSerializer):
 
 
 class RecipesSerializer(serializers.ModelSerializer):
+    author = CustomUserSerializer(source='user')
     ingredients = IngredientsAmountSerializer(many=True, )
     tags = SlugRelatedField(queryset=Tags.objects.all(),
                             slug_field='id', many=True)
@@ -82,7 +84,7 @@ class RecipesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipes
-        fields = ['id', 'name', 'cooking_time', 'ingredients',
+        fields = ['id', 'name', 'cooking_time', 'author', 'ingredients',
                   'tags', 'image', 'text', 'is_favorited',
                   'is_in_shopping_cart', ]
 
