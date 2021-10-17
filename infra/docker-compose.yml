@@ -14,7 +14,7 @@ services:
       - ./.env
       
   web:
-    image: eufaev/foodgram_backend
+    image: eufaev/foodgram_backend:1
     restart: always
     volumes:
       - static_value:/var/html/static_backend/
