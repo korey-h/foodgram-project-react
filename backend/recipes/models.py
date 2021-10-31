@@ -50,6 +50,12 @@ class Recipes(models.Model):
 
 
 class IngredientAmount(models.Model):
+    def negative_validator(value):
+        if value < 0:
+            raise ValidationError(
+                'Количество не может быть отрицательным'
+            )
+
     name = models.ForeignKey(
         Ingredients,
         on_delete=models.CASCADE,
@@ -62,7 +68,8 @@ class IngredientAmount(models.Model):
 
     amount = models.IntegerField(
         default=1,
-        help_text='Если количество выбирается по вкусу, впишите здесь ноль')
+        help_text='Если количество выбирается по вкусу, впишите здесь 1',
+        validators=[negative_validator])
 
     class Meta:
         unique_together = ['recipe', 'name']
