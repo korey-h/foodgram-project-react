@@ -15,14 +15,14 @@ class RecipesFilter(FilterSet):
         fields = ['user', 'tags']
 
     def get_favorites(self, queryset, name, value):
-        if value == 1:
+        if value:
             user = self.request.user
             queryset = queryset.filter(
                 id__in=user.favorites.values_list('recipe', flat=True))
         return queryset
 
     def get_user_cart(self, queryset, name, value):
-        if value == 1:
+        if value:
             user = self.request.user
             queryset = queryset.filter(
                 id__in=user.shopping_cart.values_list('recipe', flat=True))

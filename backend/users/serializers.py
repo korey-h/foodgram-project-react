@@ -1,16 +1,12 @@
 from django.contrib.auth import get_user_model
-from djoser.conf import default_settings
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from recipes import serializers as rec_serializers
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
 from .models import Subscribe
-from recipes.models import Recipes
 
 User = get_user_model()
-default_settings["SERIALIZERS"]["user_create"] = 'users.serializers.CustomUserCreateSerializer' # noqa
-default_settings["SERIALIZERS"]["user"] = 'users.serializers.CustomUserSerializer' # noqa
-default_settings["SERIALIZERS"]["current_user"] = 'users.serializers.CustomUserSerializer' # noqa
 
 
 class CustomUserSerializer(UserSerializer):
@@ -23,11 +19,9 @@ class CustomUserSerializer(UserSerializer):
 
     def get_is_subscribe(self, obj):
         current_user = self.context['request'].user
-        if current_user.is_anonymous:
-            return False
-        author = obj
-        return Subscribe.objects.filter(
-            user=current_user.id, subscription=author.id).exists()
+        return (not current_user.is_anonymous and Subscribe.objects.filter(
+                user=current_user, subscription=obj).exists()
+                )
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -38,13 +32,6 @@ class CustomUserCreateSerializer(UserCreateSerializer):
         extra_kwargs = {'email': {'required': True},
                         'first_name': {'required': True},
                         'last_name': {'required': True}, }
-
-
-class SimpleRecipeSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Recipes
-        fields = ['id', 'name', 'image', 'cooking_time', ]
 
 
 class InfoSubscribeSerializer(CustomUserSerializer):
@@ -70,7 +57,7 @@ class InfoSubscribeSerializer(CustomUserSerializer):
             pass
 
         finally:
-            return SimpleRecipeSerializer(obj, many=True).data
+            return rec_serializers.SimpleRecipeSerializer(obj, many=True).data
 
 
 class SubscribeSerializer(serializers.ModelSerializer):

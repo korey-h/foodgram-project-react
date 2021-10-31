@@ -77,16 +77,25 @@ class RecipesSerializer(serializers.ModelSerializer):
     tags = SlugRelatedField(queryset=Tags.objects.all(),
                             slug_field='id', many=True)
 
-    image = serializers.ImageField(use_url=True)
+    image = Base64ImageField(use_url=True)
 
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipes
-        fields = ['id', 'name', 'cooking_time', 'author', 'ingredients',
-                  'tags', 'image', 'text', 'is_favorited',
-                  'is_in_shopping_cart', ]
+        fields = [
+            'id',
+            'name', 
+            'cooking_time',
+            'author', 
+            'ingredients',
+            'tags',
+            'image',
+            'text',
+            'is_favorited',
+            'is_in_shopping_cart',
+        ]
 
     def get_is_favorited(self, obj):
         current_user = self.context['request'].user
@@ -107,7 +116,6 @@ class RecipesSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         user = self.context['request'].user
         data.update({'user': user})
-        self.fields['image'] = Base64ImageField()
         return super().to_internal_value(data)
 
     def update(self, instance, validated_data):
@@ -121,11 +129,12 @@ class RecipesSerializer(serializers.ModelSerializer):
             obj = IngredientAmount.objects.get_or_create(
                 recipe=instance,
                 name=ingredient['name'])[0]
-            if amount > 0:
+            if amount == 0:
+                obj.delete()
+
+            else:
                 obj.amount = amount
                 obj.save()
-            else:
-                obj.delete()
 
         return instance
 
@@ -140,3 +149,10 @@ class RecipesSerializer(serializers.ModelSerializer):
         recipe.save()
 
         return recipe
+
+
+class SimpleRecipeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Recipes
+        fields = ['id', 'name', 'image', 'cooking_time', ]

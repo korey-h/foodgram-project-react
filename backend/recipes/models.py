@@ -1,4 +1,7 @@
+import re
+
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 
@@ -28,7 +31,7 @@ class Recipes(models.Model):
         'Tags',
         related_name='tags')
 
-    image = models.ImageField(upload_to='recipes/images/', )
+    image = models.ImageField(upload_to='recipes/images/')
 
     name = models.TextField(
         max_length=200, unique=True,
@@ -66,10 +69,17 @@ class IngredientAmount(models.Model):
 
 
 class Tags(models.Model):
+    def color_validator(value):
+        if not re.match(r'#[0-9A-Fa-f]{6}', value):
+            raise ValidationError(
+                f'{value} - неправильный формат цветового кода'
+            )
+
     name = models.TextField(
         max_length=200, verbose_name='Название тега')
 
-    color = models.CharField(max_length=7, null=True, blank=True)
+    color = models.CharField(max_length=7, null=True, blank=True,
+                             validators=[color_validator])
 
     slug = models.SlugField(max_length=200, null=True, blank=True)
 
