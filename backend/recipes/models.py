@@ -1,9 +1,8 @@
-import re
-
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
+
+from .validators import color_validator, negative_validator
 
 User = get_user_model()
 
@@ -50,11 +49,6 @@ class Recipes(models.Model):
 
 
 class IngredientAmount(models.Model):
-    def negative_validator(value):
-        if value < 0:
-            raise ValidationError(
-                'Количество не может быть отрицательным'
-            )
 
     name = models.ForeignKey(
         Ingredients,
@@ -76,11 +70,6 @@ class IngredientAmount(models.Model):
 
 
 class Tags(models.Model):
-    def color_validator(value):
-        if not re.match(r'#[0-9A-Fa-f]{6}', value):
-            raise ValidationError(
-                f'{value} - неправильный формат цветового кода'
-            )
 
     name = models.TextField(
         max_length=200, verbose_name='Название тега')
