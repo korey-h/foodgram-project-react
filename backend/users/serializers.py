@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from recipes import serializers as rec_serializers
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
@@ -48,16 +47,12 @@ class InfoSubscribeSerializer(CustomUserSerializer):
 
     def get_recipes(self, obj):
         obj = obj.user_recipes.all()
-        try:
-            params = self.context['request'].query_params
-            limit = int(params['recipes_limit'])
-            obj = obj[:limit]
-
-        except (KeyError, ValueError):
-            pass
-
-        finally:
-            return rec_serializers.SimpleRecipeSerializer(obj, many=True).data
+        params = self.context['request'].query_params
+        limit = params.get('recipes_limit')
+        if limit:
+            obj = obj[:int(limit)]
+        from recipes.serializers import SimpleRecipeSerializer
+        return SimpleRecipeSerializer(obj, many=True).data
 
 
 class SubscribeSerializer(serializers.ModelSerializer):

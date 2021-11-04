@@ -44,31 +44,32 @@ class TagsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SimpleRecipeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Recipes
+        fields = ['id', 'name', 'image', 'cooking_time', ]
+
+
 class FavoritesSerializer(serializers.ModelSerializer):
     id = SlugRelatedField(queryset=Recipes.objects.all(),
                           slug_field='id', source='recipe')
 
-    name = serializers.CharField(source='recipe.name', read_only=True)
-    image = serializers.CharField(source='recipe.image', read_only=True)
-    cooking_time = serializers.IntegerField(
-        source='recipe.cooking_time',
-        read_only=True)
-
     class Meta:
         model = Favorites
-        fields = ['id', 'name', 'image', 'cooking_time']
+        fields = ['id']
 
-    def create(self, validated_data):
-        obj = self.Meta.model.objects.get_or_create(
-            user=self.context['request'].user,
-            recipe=validated_data['recipe'])
-        return obj[0]
+    def to_representation(self, instance):
+        self.fields['id'] = SimpleRecipeSerializer(source='recipe')
+        out = super().to_representation(instance)
+        return out['id']
 
 
 class ShoppingCartSerializer(FavoritesSerializer):
+
     class Meta:
         model = ShoppingCart
-        fields = ['id', 'name', 'image', 'cooking_time']
+        fields = ['id']
 
 
 class RecipesSerializer(serializers.ModelSerializer):
@@ -114,8 +115,11 @@ class RecipesSerializer(serializers.ModelSerializer):
         return super().to_representation(instance)
 
     def to_internal_value(self, data):
+        self.fields['author'] = serializers.PrimaryKeyRelatedField(
+            queryset=User.objects.all(),
+            source='user')
         user = self.context['request'].user
-        data.update({'user': user})
+        data.update({'author': user})
         return super().to_internal_value(data)
 
     def update(self, instance, validated_data):
@@ -149,10 +153,3 @@ class RecipesSerializer(serializers.ModelSerializer):
         recipe.save()
 
         return recipe
-
-
-class SimpleRecipeSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Recipes
-        fields = ['id', 'name', 'image', 'cooking_time', ]

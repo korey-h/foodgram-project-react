@@ -17,31 +17,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
-from recipes import views as recipes_views
-from rest_framework.routers import SimpleRouter
-from users import views as user_views
-
-router_users = SimpleRouter()
-router_recipes = SimpleRouter()
-router_users.register("users",
-                      user_views.CustomUserViewSet)
-router_users.register("users",
-                      user_views.SubscribeViewSet)
-
-router_recipes.register("ingredients",
-                        recipes_views.IngredientsViewSet)
-router_recipes.register("recipes",
-                        recipes_views.RecipesViewSet)
-router_recipes.register("tags",
-                        recipes_views.TagsViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/users/subscriptions/',
-         user_views.SubscribeViewSet.as_view({'get': 'list'})),
-    path('api/', include(router_users.urls)),
-    path('api/', include(router_recipes.urls)),
     path('api/auth/', include('djoser.urls.authtoken')),
+    path('api/', include('recipes.urls')),
+    path('api/', include('users.urls')),
+
 ]
 
 

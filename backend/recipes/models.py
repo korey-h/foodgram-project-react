@@ -2,29 +2,31 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from .validators import color_validator, negative_validator
+from .validators import color_validator
 
 User = get_user_model()
 
 
 class Ingredients(models.Model):
     name = models.TextField(
-        max_length=200, unique=True,
-        error_messages={'unique': 'Такой ингридиент уже создан'},
+        max_length=200,
         verbose_name='Название ингридиента')
 
     measurement_unit = models.TextField(
         max_length=200, verbose_name='единица измерения')
+
+    class Meta:
+        unique_together = ['name', 'measurement_unit']        
 
     def __str__(self):
         return self.name
 
 
 class Recipes(models.Model):
-    user = models.ForeignKey(User,
-                             on_delete=models.CASCADE,
-                             related_name='user_recipes',
-                             )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='user_recipes')
 
     tags = models.ManyToManyField(
         'Tags',
@@ -63,7 +65,9 @@ class IngredientAmount(models.Model):
     amount = models.IntegerField(
         default=1,
         help_text='Если количество выбирается по вкусу, впишите здесь 1',
-        validators=[negative_validator])
+        validators=[MinValueValidator(
+            0, message='Количество не может быть отрицательным')
+        ])
 
     class Meta:
         unique_together = ['recipe', 'name']
@@ -74,8 +78,11 @@ class Tags(models.Model):
     name = models.TextField(
         max_length=200, verbose_name='Название тега')
 
-    color = models.CharField(max_length=7, null=True, blank=True,
-                             validators=[color_validator])
+    color = models.CharField(
+        max_length=7,
+        null=True,
+        blank=True,
+        validators=[color_validator])
 
     slug = models.SlugField(max_length=200, null=True, blank=True)
 
@@ -84,24 +91,30 @@ class Tags(models.Model):
 
 
 class Favorites(models.Model):
-    user = models.ForeignKey(User,
-                             on_delete=models.CASCADE,
-                             related_name='favorites')
-    recipe = models.ForeignKey(Recipes,
-                               on_delete=models.CASCADE,
-                               related_name='users')
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='favorites')
+
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        related_name='users')
 
     class Meta:
         unique_together = ['user', 'recipe']
 
 
 class ShoppingCart(models.Model):
-    user = models.ForeignKey(User,
-                             on_delete=models.CASCADE,
-                             related_name='shopping_cart')
-    recipe = models.ForeignKey(Recipes,
-                               on_delete=models.CASCADE,
-                               related_name='users_cart')
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shopping_cart')
+
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        related_name='users_cart')
 
     class Meta:
         unique_together = ['user', 'recipe']

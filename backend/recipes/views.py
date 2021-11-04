@@ -59,6 +59,11 @@ class RecipesViewSet(ModelViewSet):
         else:
             return super().get_serializer_class()
 
+    def perform_create(self, serializer):
+        if self.action == 'shopping_cart' or self.action == 'favorite':
+            serializer.save(user=self.request.user)
+        return super().perform_create(serializer)
+
     @action(['get', 'delete'], detail=True,
             permission_classes=[permissions.IsAuthenticated])
     def favorite(self, request, *args, **kwargs):
