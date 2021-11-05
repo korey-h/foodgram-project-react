@@ -5,8 +5,14 @@ from .models import Recipes
 
 
 class RecipesFilter(FilterSet):
-    author = filters.CharFilter(field_name='user__id',
-                                lookup_expr='exact')
+    author = filters.CharFilter(
+        field_name='user__id',
+        lookup_expr='exact')
+
+    tags = filters.CharFilter(
+        field_name='tags__slug',
+        lookup_expr='exact')
+
     is_favorited = filters.BooleanFilter(method='get_favorites')
     is_in_shopping_cart = filters.BooleanFilter(method='get_user_cart')
 
