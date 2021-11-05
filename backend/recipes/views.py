@@ -112,3 +112,4 @@ class TagsViewSet(ModelViewSet):
     serializer_class = TagsSerializer
     http_method_names = ['get', ]
     permission_classes = []
+    pagination_class = None
