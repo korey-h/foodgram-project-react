@@ -1,11 +1,13 @@
 import csv
 
+from django.db import IntegrityError
 from django.db.models.aggregates import Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, pagination, permissions 
+from rest_framework import filters, pagination, permissions, status  
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .filters import RecipesFilter
@@ -58,6 +60,15 @@ class RecipesViewSet(ModelViewSet):
             return FavoritesSerializer  
         else:
             return super().get_serializer_class()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            resp = super().create(request, *args, **kwargs)
+        except IntegrityError as e:
+            return Response(
+                {'message': 'такая запись уже есть', 'detail': e.args},
+                status=status.HTTP_400_BAD_REQUEST) 
+        return resp
 
     def perform_create(self, serializer):
         if self.action == 'shopping_cart' or self.action == 'favorite':
