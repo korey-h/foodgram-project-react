@@ -1,3 +1,5 @@
+import recipes
+
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
@@ -50,9 +52,8 @@ class InfoSubscribeSerializer(CustomUserSerializer):
         params = self.context['request'].query_params
         limit = params.get('recipes_limit')
         if limit:
-            obj = obj[:int(limit)]
-        from recipes.serializers import SimpleRecipeSerializer
-        return SimpleRecipeSerializer(obj, many=True).data
+            obj = obj[:int(limit)]      
+        return recipes.serializers.SimpleRecipeSerializer(obj, many=True).data
 
 
 class SubscribeSerializer(serializers.ModelSerializer):

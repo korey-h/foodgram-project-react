@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
 from users.serializers import CustomUserSerializer
 
@@ -133,18 +134,20 @@ class RecipesSerializer(serializers.ModelSerializer):
             obj = IngredientAmount.objects.get_or_create(
                 recipe=instance,
                 name=ingredient['name'])[0]
-            if amount == 0:
-                obj.delete()
-
-            else:
-                obj.amount = amount
-                obj.save()
+            obj.amount = amount
+            obj.save()
 
         return instance
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
+        if not ingredients_data:
+            raise ValidationError(
+                {'ingredients': 'ингредиенты должны быть указаны.'}
+            )
         tags_data = validated_data.pop('tags')
+        if not tags_data:
+            raise ValidationError({'tags': 'Тэги должны быть присвоены.'})
         recipe = Recipes.objects.create(**validated_data)
         for ingredient in ingredients_data:
             IngredientAmount.objects.create(recipe=recipe, **ingredient)

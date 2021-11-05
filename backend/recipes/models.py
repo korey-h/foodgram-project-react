@@ -66,7 +66,7 @@ class IngredientAmount(models.Model):
         default=1,
         help_text='Если количество выбирается по вкусу, впишите здесь 1',
         validators=[MinValueValidator(
-            0, message='Количество не может быть отрицательным')
+            1, message='Количество должно быть больше ноля')
         ])
 
     class Meta:
