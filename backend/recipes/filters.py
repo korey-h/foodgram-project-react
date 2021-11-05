@@ -7,8 +7,8 @@ from .models import Recipes
 class RecipesFilter(FilterSet):
     author = filters.CharFilter(field_name='user__id',
                                 lookup_expr='exact')
-    is_favorited = filters.NumberFilter(method='get_favorites')
-    is_in_shopping_cart = filters.NumberFilter(method='get_user_cart')
+    is_favorited = filters.BooleanFilter(method='get_favorites')
+    is_in_shopping_cart = filters.BooleanFilter(method='get_user_cart')
 
     class Meta:
         model = Recipes
