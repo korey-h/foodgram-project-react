@@ -119,7 +119,7 @@ class RecipesSerializer(serializers.ModelSerializer):
         self.fields['author'] = serializers.PrimaryKeyRelatedField(
             queryset=User.objects.all(),
             source='user')
-        user = self.context['request'].user
+        user = self.context['request'].user.id
         data.update({'author': user})
         return super().to_internal_value(data)
 
