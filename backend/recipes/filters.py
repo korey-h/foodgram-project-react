@@ -1,7 +1,7 @@
 from django_filters import filters
 from django_filters.rest_framework.filterset import FilterSet
 
-from .models import Recipes
+from .models import Ingredients, Recipes
 
 
 class RecipesFilter(FilterSet):
@@ -33,3 +33,13 @@ class RecipesFilter(FilterSet):
             queryset = queryset.filter(
                 id__in=user.shopping_cart.values_list('recipe', flat=True))
         return queryset
+
+
+class IngredientsFilter(FilterSet):
+    name = filters.CharFilter(
+        field_name='name',
+        lookup_expr='contains')
+
+    class Meta:
+        model = Ingredients
+        fields = ['name', ]

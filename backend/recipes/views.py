@@ -4,13 +4,13 @@ from django.db import IntegrityError
 from django.db.models.aggregates import Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, pagination, permissions
+from rest_framework import pagination, permissions
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
 
-from .filters import RecipesFilter
+from .filters import IngredientsFilter, RecipesFilter
 from .models import Ingredients, IngredientAmount, Recipes, Tags
 from .permissions import IsOwnerOrReadOnly
 from .serializers import (
@@ -25,8 +25,10 @@ class IngredientsViewSet(ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
     http_method_names = ['get', ]
-    filter_backends = [filters.SearchFilter, ]
-    search_fields = ['name', ]
+    filterset_class = IngredientsFilter
+    filter_backends = (DjangoFilterBackend, )
+    pagination_class = None
+    permission_classes = []
 
 
 class RecipesViewSet(ModelViewSet):
