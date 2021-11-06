@@ -38,7 +38,8 @@ class RecipesViewSet(ModelViewSet):
                           IsOwnerOrReadOnly)
     filterset_class = RecipesFilter
     filter_backends = (DjangoFilterBackend,)
-    pagination_class = pagination.LimitOffsetPagination
+    pagination_class = pagination.PageNumberPagination
+    pagination_class.page_size_query_param = 'limit'
 
     def get_queryset(self):
         if self.action == 'shopping_cart':
