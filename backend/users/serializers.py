@@ -1,10 +1,9 @@
-import recipes
-
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
+import recipes
 from .models import Subscribe
 
 User = get_user_model()

@@ -129,6 +129,8 @@ class RecipesSerializer(serializers.ModelSerializer):
         for key, value in validated_data.items():
             setattr(instance, key, value)
         instance.tags.set(tags_data)
+        if ingredients_data:
+            instance.ingredients.all().delete()
         for ingredient in ingredients_data:
             amount = ingredient['amount']
             obj = IngredientAmount.objects.get_or_create(
