@@ -26,6 +26,7 @@ class SubscribeViewSet(ModelViewSet):
     serializer_class = SubscribeSerializer
     permission_classes = [permissions.IsAuthenticated, ]
     pagination_class = pagination.PageNumberPagination
+    pagination_class.page_size_query_param = 'limit'
     queryset = Subscribe.objects.all()
     lookup_url_kwarg = 'id'
     lookup_field = 'subscription'
