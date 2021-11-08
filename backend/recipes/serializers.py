@@ -1,8 +1,7 @@
 from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
-from rest_framework.generics import get_object_or_404
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.relations import SlugRelatedField
 from users.serializers import CustomUserSerializer
 
@@ -41,7 +40,11 @@ class IngredientsAmountSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         id = data.get('id')
         if id:
-            get_object_or_404(Ingredients, id=id)
+            try:
+                Ingredients.objects.get(id=id)
+            except Ingredients.DoesNotExist:
+                raise NotFound(
+                    detail=f'Введен несуществующий индекс {id} ингредиента')
         return super().to_internal_value(data)
 
 
