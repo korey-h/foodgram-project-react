@@ -17,7 +17,7 @@ class CustomUserSerializer(UserSerializer):
         fields = ['email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed']
 
-    def get_is_subscribe(self, obj):
+    def get_is_subscribed(self, obj):
         current_user = self.context['request'].user
         return (not current_user.is_anonymous and Subscribe.objects.filter(
                 user=current_user, subscription=obj).exists()
