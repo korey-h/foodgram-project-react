@@ -39,6 +39,9 @@ class SubscribeViewSet(ModelViewSet):
         request.data.update(data)
         return super().create(request, *args, **kwargs)
 
+    def get_queryset(self):
+        return self.request.user.subscriptions.all()
+
     @action(['get', 'delete'], detail=True,
             permission_classes=[permissions.IsAuthenticated])
     def subscribe(self, request, *args, **kwargs):

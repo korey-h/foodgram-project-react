@@ -1,7 +1,7 @@
-from django_filters import filters
+from django_filters import filters, ModelMultipleChoiceFilter
 from django_filters.rest_framework.filterset import FilterSet
 
-from .models import Ingredients, Recipes
+from .models import Ingredients, Recipes, Tags
 
 
 class RecipesFilter(FilterSet):
@@ -9,9 +9,12 @@ class RecipesFilter(FilterSet):
         field_name='user__id',
         lookup_expr='exact')
 
-    tags = filters.CharFilter(
+    tags = ModelMultipleChoiceFilter(
         field_name='tags__slug',
-        lookup_expr='exact')
+        to_field_name='slug',
+        lookup_expr='exact',
+        queryset=Tags.objects.all()
+    ) 
 
     is_favorited = filters.BooleanFilter(method='get_favorites')
     is_in_shopping_cart = filters.BooleanFilter(method='get_user_cart')
