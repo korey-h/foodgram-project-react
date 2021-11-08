@@ -41,7 +41,7 @@ class InfoSubscribeSerializer(CustomUserSerializer):
     class Meta:
         model = User
         fields = ['email', 'id', 'username', 'first_name', 'last_name',
-                  'is_subscribe', 'recipes_count', 'recipes']
+                  'is_subscribed', 'recipes_count', 'recipes']
 
     def get_recipes_count(self, obj):
         return obj.user_recipes.count()
