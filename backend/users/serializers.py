@@ -15,7 +15,7 @@ class CustomUserSerializer(UserSerializer):
     class Meta:
         model = User
         fields = ['email', 'id', 'username', 'first_name', 'last_name',
-                  'is_subscribe']
+                  'is_subscribed']
 
     def get_is_subscribe(self, obj):
         current_user = self.context['request'].user
