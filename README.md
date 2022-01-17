@@ -14,6 +14,14 @@ Gunicorn 20.0.4
 ### Развертывание проекта
 - установите на сервер проекта Docker и docker-compose 
 - создайте папку для проекта и скопируйте в нее папки из репозитория: infra, frontend, docs
+- в папке infra создайте файл .env и запишите в него переменные со следующими значениями:
+    + DB_ENGINE=django.db.backends.postgresql
+    + DB_NAME=postgres
+    + POSTGRES_USER=postgres
+    + POSTGRES_PASSWORD= придумайе_свой_пароль
+    + DB_HOST=db
+    + DB_PORT=5432
+    + SECRET_KEY= придумайте_набор_из_50_символов
 - запустите терминал (bash), перейдите в папку infra проекта и выполните команду
 docker-compose up
 
